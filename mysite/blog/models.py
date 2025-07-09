@@ -1,6 +1,8 @@
+from enum import auto, unique
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from autoslug import AutoSlugField
 
 
 # Create your models here.
@@ -13,7 +15,7 @@ class Post(models.Model):
 
 
     title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True, max_length=255)
+    slug = AutoSlugField(populate_from="title", unique=True, always_update=False, editable=True)
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
