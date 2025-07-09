@@ -11,3 +11,5 @@ class PostAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
     date_hierarchy = 'published_at'
     ordering = ['status', 'published_at']
+    #raw_id_fields = ['author']
+    show_facets = admin.ShowFacets.ALWAYS
