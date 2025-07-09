@@ -1,1 +1,23 @@
+# Python virtual environment
+venv/
 .venv/
+*.env
+.env.local
+
+# SQLite database
+db.sqlite3
+
+# Python compiled files
+__pycache__/
+*.pyc
+
+# IDE-specific files (like VS Code) - usually ignored by default
+.vscode/
+
+# Media and static files uploaded/generated (if not managed by Git LFS)
+/media/
+/static_root/
+
+# Operating System files
+.DS_Store # macOS
+Thumbs.db # Windows
