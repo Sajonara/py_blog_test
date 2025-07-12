@@ -4,6 +4,14 @@ from django.db import models
 from django.utils import timezone
 from autoslug import AutoSlugField
 
+class PublishedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status=Post.Status.PUBLISHED)
+
+class DraftManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status=Post.Status.DRAFT)
+
 
 # Create your models here.
 class Post(models.Model):
@@ -32,6 +40,11 @@ class Post(models.Model):
         choices=Status.choices,
         default=Status.DRAFT
     )
+    objects = models.Manager()
+    published = PublishedManager()
+    drafts = DraftManager()
+
+
 
     class Meta:
         ordering = ['-published_at']
