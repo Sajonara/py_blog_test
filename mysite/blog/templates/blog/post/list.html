@@ -13,5 +13,6 @@
         </p>
         <p>{{ post.content|truncatewords:30|linebreaks }}</p>
     {% endfor %}
+    # pagination include
     {% include "pagination.html" with page=posts %}
 {% endblock %}
