@@ -1,52 +1,65 @@
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger # <-- PageNotAnInteger importieren
-from django.shortcuts import render, redirect, get_object_or_404
+from django.core.paginator import Paginator, EmptyPage
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.http import Http404
 from .models import Post
+from django.views.generic import ListView
 
 # Create your views here
-def post_list(request):
-    post_list_queryset = Post.published.all()
-    paginator = Paginator(post_list_queryset, 3)
-    
-    page_number_str = request.GET.get('page', '1') # Hole den Wert als String
-    
-    try:
-        # Versuche, die angefragte Seite zu laden.
-        # Hier übergeben wir den String direkt an paginator.page().
-        # Wenn es keine Zahl ist, wird PageNotAnInteger geworfen.
-        # Wenn es eine Zahl ist, aber außerhalb des Bereichs, wird EmptyPage geworfen.
-        posts = paginator.page(page_number_str)
-    except PageNotAnInteger:
-        # Wenn die Seitenzahl keine Ganzzahl ist (z.B. 'abc'),
-        # leite zur ersten Seite um.
-        return redirect(reverse('blog:post_list') + '?page=1')
-    except EmptyPage:
-        # Wenn die Seitenzahl eine Zahl war, aber außerhalb des Bereichs liegt (z.B. 0, -5, oder 999)
-        # Hier ist es wichtig, die ursprüngliche angefragte Zahl zu kennen,
-        # um zwischen "zu hoch" und "zu niedrig" zu unterscheiden.
-        # Da paginator.page() schon PageNotAnInteger für Non-Integer abgefangen hat,
-        # muss page_number_str hier eine gültige Zahl sein.
-        
-        # Sicherstellen, dass wir eine Zahl zum Vergleichen haben
-        # Das int() sollte hier klappen, da PageNotAnInteger schon gefangen wurde
-        page_number_int = int(page_number_str) 
+class PostListView(ListView):
+    """
+    Alternative post list view
+    """
+    queryset = Post.published.all()
+    context_object_name = 'posts'
+    paginate_by = 3
+    template_name = 'blog/post/list.html'
 
-        if page_number_int > paginator.num_pages:
-            # Wenn zu hoch, leite zur letzten Seite um.
-            return redirect(reverse('blog:post_list') + '?page=' + str(paginator.num_pages))
-        elif page_number_int < 1:
-            # Wenn zu niedrig (<=0), leite zur ersten Seite um.
-            return redirect(reverse('blog:post_list') + '?page=1')
-        else:
-            # Dieser else-Zweig sollte nach den obigen Checks und EmptyPage theoretisch nicht erreicht werden.
-            raise Http404("Seite nicht gefunden.")
-    
-    return render(
-        request,
-        'blog/post/list.html',
-        {'posts': posts}
-    )
+    def get(self, request, *args, **kwargs):
+        paginator = Paginator(self.get_queryset(), self.paginate_by)
+        page_number_str = request.GET.get('page', '1')
+
+        try:
+            page_number = int(page_number_str)
+            # Dieser Aufruf validiert die Seitenzahl. Er löst EmptyPage aus,
+            # wenn die Zahl außerhalb des gültigen Bereichs liegt.
+            paginator.page(page_number)
+        except ValueError:
+            # Wenn 'page' keine Ganzzahl ist, leite zur ersten Seite weiter.
+            return redirect(reverse('blog:post_list'))
+        except EmptyPage:
+            # Wenn die Seitenzahl eine Ganzzahl, aber außerhalb des Bereichs ist.
+            if page_number > paginator.num_pages:
+                # Wenn sie zu hoch ist, leite zur letzten Seite weiter.
+                return redirect(reverse('blog:post_list') + f'?page={paginator.num_pages}')
+            else:
+                # Wenn sie zu niedrig ist (z.B. 0), leite zur ersten Seite weiter.
+                return redirect(reverse('blog:post_list'))
+
+        # Wenn alle Prüfungen bestanden wurden, ist die Seitenzahl gültig.
+        # Wir überlassen der get()-Methode der Elternklasse die weitere Bearbeitung.
+        return super().get(request, *args, **kwargs)
+
+
+
+# def post_list(request):
+#     post_list_queryset = Post.published.all()
+#     paginator = Paginator(post_list_queryset, 3)
+#     page_number = request.GET.get('page', '1')
+#     try:
+#         posts = paginator.page(page_number)
+#     except PageNotAnInteger:
+#         # If page_number is not an integer, deliver the first page.
+#         posts = paginator.page(1)
+#     except EmptyPage:
+#         # If page_number is out of range, deliver last page of results.
+#         posts = paginator.page(paginator.num_pages)
+#
+#     return render(
+#         request,
+#         'blog/post/list.html',
+#         {'posts': posts}
+#     )
 
 def post_detail(request, year, month, day, post):
     post = get_object_or_404(
