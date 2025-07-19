@@ -8,4 +8,7 @@
         Veröffentlicht am {{ post.published_at }} von {{ post.author }}
     </p>
     <p>{{ post.content|linebreaks }}</p>
+    <p>
+        <a href="{% url "blog:post_share" post.id %}">Blogbeitrag teilen</a>
+    </p>
 {% endblock %}
