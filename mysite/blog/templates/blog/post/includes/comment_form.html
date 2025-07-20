@@ -1,0 +1,8 @@
+<h2>Neuen Kommentar hinzufügen</h2>
+<form action="{% url 'blog:post_share' post.id %}" method="POST">
+    {{ form.as_p }}
+    {% csrf_token %}
+    <p>
+        <input type="submit" value="Senden">
+    </p>
+</form>
