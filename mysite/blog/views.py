@@ -110,6 +110,7 @@ def post_share(request, post_id):
                 recipient_list=[cd['to']]
             )
             sent = True
+            return redirect(post.get_absolute_url())
     else:
         form = EmailPostForm()
     return render(
