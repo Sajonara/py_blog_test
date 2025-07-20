@@ -1,12 +1,10 @@
 {% extends "blog/base.html" %}
 
-{% block title %}Füge einen Kommentar hinzu{% endblock %}
+{% block title %}Kommentar-Fehler{% endblock %}
 
 {% block content %}
-    {% if comment %}
-        <h2>Kommentar hinzugefügt!</h2>
-        <p><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></p>
-    {% else %}"
-        {% include "blog/post/includes/comment_form.html" %}
-    {% endif %}
+    <h2>Dein Kommentar konnte nicht gespeichert werden.</h2>
+    <p>Bitte korrigiere die Fehler unten und versuche es erneut.</p>
+    {% include "blog/post/includes/comment_form.html" %}
+    <p><a href="{{ post.get_absolute_url }}">Zurück zum Artikel</a></p>
 {% endblock %}

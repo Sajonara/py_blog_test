@@ -130,7 +130,6 @@ def post_share(request, post_id):
 @require_POST
 def post_comment(request, post_id):
     post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
-    comment = None
     # A comment was posted
     form = CommentForm(data=request.POST)
     if form.is_valid():
@@ -140,8 +139,10 @@ def post_comment(request, post_id):
         comment.post = post
         # Save the comment to the database
         comment.save()
+        messages.success(request, 'Dein Kommentar wurde erfolgreich hinzugefügt.')
+        return redirect(post.get_absolute_url())
     return render(
         request,
         'blog/post/comment.html',
-        {'post': post, 'form': form, 'comment': comment}
+        {'post': post, 'form': form, 'comment': None}
     )

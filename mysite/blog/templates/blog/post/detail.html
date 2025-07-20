@@ -20,7 +20,7 @@
                 Kommentar {{ forloop.counter }} von {{ comment.name }}
                 {{ comment.created_at|date:"d.m.Y H:i"}}
             </p>
-            <p>{{ comment.content|linebreaks }}</p>
+            <p>{{ comment.body|linebreaks }}</p>
         </div>
     {% empty %}
         <p>Es wurden noch keine Kommentare hinzugefügt.</p>        
