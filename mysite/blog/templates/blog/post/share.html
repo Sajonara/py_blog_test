@@ -3,17 +3,10 @@
 {% block title %}Blogbeitrag teilen{% endblock %}
 
 {% block content %}
-    {% if sent %}
-    <h1>E-Mail gesendet!</h1>
-    <p>
-        "{{ post.title }}" wurde erfolgreich versendet an {{ form.cleaned_data.to }}.
-    </p>
-    {% else %}
     <h1>Blogbeitrag "{{ post.title }}" per E-Mail teilen</h1>
     <form method="POST">
         {{ form.as_p }}
         {% csrf_token %}
         <input type="submit" value="Senden">
     </form>
-    {% endif %}
 {% endblock %}

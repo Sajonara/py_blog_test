@@ -5,6 +5,7 @@ from django.http import Http404
 from .models import Post
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView
+from django.contrib import messages
 from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 
@@ -91,7 +92,6 @@ def post_detail(request, year, month, day, post):
 def post_share(request, post_id):
     # retrieve post by id
     post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
-    sent = False
 
     if request.method == 'POST':
         # form was submitted
@@ -117,14 +117,14 @@ def post_share(request, post_id):
                 from_email=None,
                 recipient_list=[cd['to']]
             )
-            sent = True
+            messages.success(request, f'"{post.title}" wurde erfolgreich an {cd["to"]} gesendet.')
             return redirect(post.get_absolute_url())
     else:
         form = EmailPostForm()
     return render(
         request,
         'blog/post/share.html',
-        {'post': post, 'form': form, 'sent': sent}
+        {'post': post, 'form': form}
     )
 
 @require_POST
