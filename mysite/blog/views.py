@@ -3,8 +3,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.http import Http404
 from .models import Post
+from django.views.decorators.http import require_POST
 from django.views.generic import ListView
-from .forms import EmailPostForm
+from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 
 
@@ -117,4 +118,23 @@ def post_share(request, post_id):
         request,
         'blog/post/share.html',
         {'post': post, 'form': form, 'sent': sent}
+    )
+
+@require_POST
+def post_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
+    comment = None
+    # A comment was posted
+    form = CommentForm(data=request.POST)
+    if form.is_valid():
+        # Create a Comment object without saving it to the database
+        comment = form.save(commit=False)
+        # Assign the post to the comment
+        comment.post = post
+        # Save the comment to the database
+        comment.save()
+    return render(
+        request,
+        'blog/post/comment.html',
+        {'post': post, 'form': form, 'comment': comment}
     )
