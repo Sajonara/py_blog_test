@@ -4,6 +4,11 @@
 
 {% block content %}
     <h1>Mein Blog</h1>
+    {% if tag %}
+        <h2>Beiträge getagged mit "{{ tag.name }}"</h2>
+    {% else %}
+        <h2>Alle Beiträge</h2>
+    {% endif %}
     {% for post in posts %}
         <h2>
             <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>

@@ -8,19 +8,33 @@ from django.views.generic import ListView
 from django.contrib import messages
 from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
-
+from taggit.models import Tag
 
 
 # Create your views here
 class PostListView(ListView):
     """
-    Alternative post list view
+    class based post list view with tag support
     """
-    queryset = Post.published.all()
     context_object_name = 'posts'
     paginate_by = 3
     template_name = 'blog/post/list.html'
 
+    def get_queryset(self):
+        queryset = Post.published.all()
+        self.tag = None
+
+        tag_slug = self.kwargs.get('tag_slug')
+        if tag_slug:
+            self.tag = get_object_or_404(Tag, slug=tag_slug)
+            queryset = queryset.filter(tags__in=[self.tag])
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        return context
+    
     def get(self, request, *args, **kwargs):
         paginator = Paginator(self.get_queryset(), self.paginate_by)
         page_number_str = request.GET.get('page', '1')
